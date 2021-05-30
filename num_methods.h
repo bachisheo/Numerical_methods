@@ -141,7 +141,7 @@ struct ParametricallyDefinedArea {
     vect<db> t;
     Spline xSpline;
     Spline ySpline;
-    ParametricallyDefinedArea(vector<db> x, vector<db> y);
+    ParametricallyDefinedArea(vector<db> xCoord, vector<db> yCoord);
 };
 std::ostream &operator<<(std::ostream &out,  ParametricallyDefinedArea &a) ;
 

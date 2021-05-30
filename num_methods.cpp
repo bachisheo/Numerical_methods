@@ -197,7 +197,7 @@ db Spline::getFuncApproxInDot(db curx)  {
     return Sx;
 }
 
-ParametricallyDefinedArea::ParametricallyDefinedArea(vector<db> x, vector<db>y) :x(x), y(y) {
+ParametricallyDefinedArea::ParametricallyDefinedArea(vector<db> xCoord, vector<db>yCoord):x(xCoord), y(yCoord) {
     int xs = x.size();
     assert(xs == y.size());
     t = vect<db>(xs);

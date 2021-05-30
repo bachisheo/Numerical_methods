@@ -31,7 +31,9 @@ public:
 
     vect<T>() : vector<T>(0) {}
 
-    vect<T>(vector<T> oldVector) : v(oldVector) {}
+    vect<T>(vector<T> oldVector) : v(oldVector) {
+        oldVector;
+    }
 
     T min();
 
