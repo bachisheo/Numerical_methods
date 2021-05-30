@@ -186,7 +186,7 @@ db Spline::getFuncApproxInDot(db curx)  {
     db Sx;
     int i;
     //определить, какому отрезку принадлежит точка
-    assert(curx > approxDot[0] && curx < approxDot[approxDot.size() - 1]);
+    assert(curx >= approxDot[0] && curx <= approxDot[approxDot.size() - 1]);
     for (i = 1; i < approxDot.size(); i++)
         if (curx <= approxDot[i])
             break;

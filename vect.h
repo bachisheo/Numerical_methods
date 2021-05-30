@@ -23,40 +23,19 @@ public:
 
 template<typename T>
 class vect : public std::vector<T> {
-    std::vector<T> v;
 public:
-    vect<T>(int size) {
-        v = vector<T>(size);
-    }
 
-    vect<T>() : vector<T>(0) {}
-
-    vect<T>(vector<T> oldVector) : v(oldVector) {
-        oldVector;
-    }
-
+    vect<T>(int size) : vector<T>(size) {}
+    vect<T>(vector<T> oldVector) : vector<T>(oldVector) {}
     T min();
-
     T max();
-
-    int size() const;
-
+    int size() const {return  vector<T>::size();}
     vect<T> operator*(T mult) {
         vect<T> prod = vect<T>(size());
         for (int i = 0; i < size(); i++)
-            prod[i] = v[i] * mult;
+            prod[i] = this->operator[](i) * mult;
         return prod;
     };
-
-    T &operator[](int index) {
-        assert(index >= 0 && index < v.size());
-        return v[index];
-    }
-
-    const T &operator[](int index) const {
-        assert(index >= 0 && index < v.size());
-        return v[index];
-    }
 
 
     //скалярное произведение векторов
@@ -70,6 +49,8 @@ public:
 
     // норма разности двух векторов
     static db diffNorm(vector<db> a, vector<db> b);
+
+    vect<T>() : vector<T>() {}
 };
 
 template<typename T>
@@ -85,27 +66,22 @@ std::ostream &operator<<(ostream &fout, vector<Point<T>> points) {
 
 template<typename T>
 T vect<T>::min() {
-    assert(v.size() > 0);
-    T mnm = v[0];
-    for (int i = 0; i < v.size(); ++i)
-        if (mnm > v[i])
-            mnm = v[i];
+    assert(size() > 0);
+    T mnm = this->operator[](0);
+    for (int i = 0; i < size(); ++i)
+        if (mnm > this->operator[](i) )
+            mnm = this->operator[](i) ;
     return mnm;
 };
 
 template<typename T>
 T vect<T>::max() {
-    assert(v.size() > 0);
-    T mxm = v[0];
-    for (int i = 0; i < v.size(); ++i)
-        if (mxm < v[i])
-            mxm = v[i];
+    assert(size() > 0);
+    T mxm = this->operator[](0) ;
+    for (int i = 0; i < size(); ++i)
+        if (mxm < this->operator[](i) )
+            mxm = this->operator[](i) ;
     return mxm;
-}
-
-template<typename T>
-int vect<T>::size() const {
-    return v.size();
 }
 
 template<typename T>

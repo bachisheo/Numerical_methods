@@ -21,13 +21,16 @@ int main() {
 
     ParametricallyDefinedArea fig1 = ParametricallyDefinedArea(fx, fy);
 
+    //paint bounding area
     vector<Point<db>> d = createExternalRectangleArea(fig1);
     fout << d;
-    fout << fig1.x << endl << fig1.y;
+
+    vect<db> dotsForGraph = autoGen(1e4, fig1.t.min(), fig1.t.max());
+    fout << fig1.xSpline.getFuncApproxInDots(dotsForGraph) << endl << fig1.ySpline.getFuncApproxInDots(dotsForGraph);
     fout.close();
     fin.close();
 
-    system("python integral.py");
+    system("python ..\\integral.py");
     return 0;
 }
 
