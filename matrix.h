@@ -6,20 +6,20 @@
 #define NUMERICAL_METHODS_MATRIX_H
 #include "vect.h"
 
-const long long C = 10000;
+ long long C = 10000;
 using namespace std;
-const double eps = 1e-7;
-const int maxIterationNumber = 50000;
+ double eps = 1e-7;
+ int maxIterationNumber = 50000;
 
-template<typename Type>
+template<typename T>
 class matrix {
 protected:
 public:
-    vect<vect<Type>> dat;
+    vect<vect<T>> dat;
 
-    int colNumb() const { return dat.size(); }
+    int colNumb()  { return dat.size(); }
 
-    int rowNumb() const { return dat.size() > 0 ? dat[0].size() : 0; }
+    int rowNumb()  { return dat.size() > 0 ? dat[0].size() : 0; }
 
     matrix() {}
 
@@ -27,18 +27,18 @@ public:
     /// \param cstr
     /// \param ccol
     matrix(int cstr, int ccol) {
-        dat = vect<vect<Type>>(cstr);
+        dat = vect<vect<T>>(cstr);
         for (int i = 0; i < ccol; i++)
-            dat[i] = vect<Type>(ccol);
+            dat[i] = vect<T>(ccol);
     }
 
     /// конструктор матрицы из двумерного вектора
     /// \param M
-    matrix(vect<vect<Type>> M) : dat(M) {};
+    matrix(vect<vect<T>> M) : dat(M) {};
 
     /// Конструктор одномерной матрицы из вектора
     /// \param M
-    matrix(vect<Type> v) {
+    matrix(vect<T> v) {
         dat = matrix<db>(v.size(), 1).dat;
         for (int i = 0; i < v.size(); i++)
             dat[i][0] = v[i];
@@ -47,32 +47,32 @@ public:
     /// добавить одномерный вектор
     /// в качестве еще одного столбца в матрице
     /// \param vec
-    void push_back(vect<Type> vec);
+    void push_back(vect<T> vec);
 
     /// основные алгебраические операции над матрицами
     /// \param otherMatrix
     /// \return
-    //const после параметров - предупреждает о том, что метод не изменяет
+    // после параметров - предупреждает о том, что метод не изменяет
     //поля класса
-    matrix operator+(const matrix &otherMatrix) const;
+    matrix<T> operator+( matrix<T> &otherMatrix) ;
 
-    matrix operator+(Type d) const;
+    matrix<T> operator+(T d) ;
 
-    matrix operator*(const matrix &b) const;
+    matrix<T> operator*( matrix<T> &b) ;
 
-    matrix operator*(Type d) const;
+    matrix<T> operator*(T d) ;
 
-    vector<Type> operator*(vector<Type> d) const;
+    vector<T> operator*(vector<T> d) ;
 
-    vect<Type> &operator[](const int rowIndex);
+    vect<T> &operator[]( int rowIndex) ;
 
     /// получить матрицу, транспонированную к исходной
     /// \return
-    matrix getTransMatrix() const;
+    matrix getTransMatrix() ;
 };
 
-template<typename Type>
-istream &operator>>(istream &in, matrix<Type> &m);
+template<typename T>
+istream &operator>>(istream &in, matrix<T> &m);
 
 class TriangleMatrix : public matrix<db> {
     //счетчик перестановок строк
@@ -96,15 +96,15 @@ public:
 
 };
 
-template<typename Type>
-std::ostream &operator<<(std::ostream &out, const matrix<Type> &v) {
+template<typename T>
+std::ostream &operator<<(std::ostream &out, const matrix<T> &v) {
     for (int i = 0; i < v.rowNumb(); ++i)
         out << v[i] << endl;
     return out;
 }
 
-template<typename Type>
-std::istream &operator>>(std::istream &in, const vect<Type> &v) {
+template<typename T>
+std::istream &operator>>(std::istream &in,  vect<T> &v) {
     for (int i = 0; i < v.size(); ++i)
         in >> v[i];
     return in;
@@ -122,13 +122,13 @@ vector<double> GaussMethod(matrix<db> B, vect<db> b);
 /// \param e1  точность
 /// \param l1
 /// \return
-template<typename Type>
+template<typename T>
 vector<db> residual(matrix<db> A, vector<db> e1, db l1);
 /// сумма двух матриц
 /// \param otherMatrix
 /// \return
-ttt
-matrix<Type> matrix<Type>::operator+(const matrix<Type> &otherMatrix) const {
+template<typename T>
+matrix<T> matrix<T>::operator+( matrix<T> &otherMatrix)  {
     int n = rowNumb(), m = rowNumb();
     assert(m == otherMatrix.colNumb() && n == otherMatrix.rowNumb());
     matrix c = matrix(otherMatrix);
@@ -139,8 +139,8 @@ matrix<Type> matrix<Type>::operator+(const matrix<Type> &otherMatrix) const {
 }
 
 
-template<>
-matrix<db> matrix<db>::operator+(db d) const {
+template<typename T>
+matrix<T> matrix<T>::operator+(T d) {
     int n = rowNumb(), m = colNumb();
     matrix c = matrix(this->dat);
     for (int i = 0; i < n; i++)
@@ -149,10 +149,10 @@ matrix<db> matrix<db>::operator+(db d) const {
     return c;
 }
 
-template<>
-matrix<db> matrix<db>::operator*(const matrix<db> &b) const {
+template<typename T>
+matrix<T> matrix<T>::operator*( matrix<T> &b)  {
     int n = rowNumb(), m = colNumb();
-    matrix<db> c = matrix(0, 0);
+    matrix<T> c = matrix<T>(0, 0);
     if (m == b.rowNumb()) {
         c = matrix(n, b.colNumb());
         for (int i = 0; i < n; i++)
@@ -165,8 +165,8 @@ matrix<db> matrix<db>::operator*(const matrix<db> &b) const {
     return c;
 }
 
-template<>
-matrix<db> matrix<db>::operator*(db d) const {
+template<typename T>
+matrix<T> matrix<T>::operator*(T d)  {
     matrix c = matrix(rowNumb(), colNumb());
     for (int i = 0; i < rowNumb(); i++)
         for (int j = 0; j < colNumb(); j++)
@@ -177,19 +177,19 @@ matrix<db> matrix<db>::operator*(db d) const {
 ///умножение матрицы на вектор
 /// \param v
 /// \return
-template<>
-vector<db> matrix<db>::operator*(vector<db> v) const {
-    matrix<db> b = matrix<db>(v);
+template<typename T>
+vector<T> matrix<T>::operator*(vector<T> v)  {
+    matrix<T> b = matrix<T>(v);
     return ((*this) * b).getTransMatrix().dat[0];
 }
 
-template<>
-vect<db> &matrix<db>::operator[](const int rowIndex) {
+template<typename T>
+vect<T> &matrix<T>::operator[]( int rowIndex)  {
     return dat[rowIndex];
 }
 
-ttt
-matrix<Type> matrix<Type>::getTransMatrix() const {
+template<typename T>
+matrix<T> matrix<T>::getTransMatrix()  {
     matrix B = matrix(colNumb(), rowNumb());
     for (int i = 0; i < rowNumb(); i++)
         for (int j = 0; j < colNumb(); j++)
@@ -197,11 +197,8 @@ matrix<Type> matrix<Type>::getTransMatrix() const {
     return B;
 }
 
-ttt
-void matrix<Type>::push_back(vect<Type> vec) {
+template<typename T>
+void matrix<T>::push_back(vect<T> vec) {
     dat.push_back(vec);
 }
-
-
-
 #endif //NUMERICAL_METHODS_MATRIX_H

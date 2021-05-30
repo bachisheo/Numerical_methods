@@ -11,7 +11,7 @@
 class AbstractIntegral {
 private:
     ///разделить каждый интервал на два
-    vector<db> divideIntervalsInto2(const vector<db> &x);
+    vector<db> divideIntervalsInto2( vector<db> &x);
 
     /// <summary>
     ///автоматический выбор шага интегрирования
@@ -121,10 +121,10 @@ public:
     Spline(vector<db> x, vector<db> y) : approxDot(x), funcInDot(y),
                                          SplineMatrix(getSplineMatrix(x, y)) {}
     //approximate func for one dot
-    db getFuncApproxInDot(db curx) const;
+    db getFuncApproxInDot(db curx) ;
 
     //approximate for vector of dots
-    vect<db> getFuncApproxInDots(vector<db> curx) const{
+    vect<db> getFuncApproxInDots(vector<db> curx) {
         vect<db> res = vector<db>(curx.size());
         for (int i = 0; i < curx.size(); ++i)
             res[i] = getFuncApproxInDot(curx[i]);
@@ -143,7 +143,7 @@ struct ParametricallyDefinedArea {
     Spline ySpline;
     ParametricallyDefinedArea(vector<db> x, vector<db> y);
 };
-std::ostream &operator<<(std::ostream &out, const ParametricallyDefinedArea &a) ;
+std::ostream &operator<<(std::ostream &out,  ParametricallyDefinedArea &a) ;
 
 vector<Point<db>> createExternalRectangleArea(ParametricallyDefinedArea fig) ;
 #endif //NUMERICAL_METHODS_NUM_METHODS_H

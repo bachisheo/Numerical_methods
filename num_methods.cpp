@@ -11,7 +11,7 @@ std::vector<db> autoGen(int n, db l, db r) {
     return x;
 }
 
-vector<db> AbstractIntegral::divideIntervalsInto2(const vector<db> &x) {
+vector<db> AbstractIntegral::divideIntervalsInto2( vector<db> &x) {
     vector<db> x2 = vector < db > ();
     x2.push_back(x[0]);
     for (int i = 1; i < x.size(); i++) {
@@ -182,7 +182,7 @@ vector<vector<db>> Spline::getSplineMatrix(vector<db> x, vector<db> y) {
 /// <param name="x">точки интерполяции</param>
 /// <returns>результат приближения</returns>
 
-db Spline::getFuncApproxInDot(db curx) const {
+db Spline::getFuncApproxInDot(db curx)  {
     db Sx;
     int i;
     //определить, какому отрезку принадлежит точка
@@ -200,14 +200,14 @@ db Spline::getFuncApproxInDot(db curx) const {
 ParametricallyDefinedArea::ParametricallyDefinedArea(vector<db> x, vector<db>y) :x(x), y(y) {
     int xs = x.size();
     assert(xs == y.size());
-    t = vector<db>(xs);
+    t = vect<db>(xs);
     for (int i = 0; i < xs; i++)
         t[i] = i + 1.;
     xSpline = Spline(t, x);
     ySpline = Spline(t, y);
 }
 
-std::ostream &operator<<(std::ostream &out, const ParametricallyDefinedArea &a) {
+std::ostream &operator<<(std::ostream &out,  ParametricallyDefinedArea &a) {
     //исходные точки
     out << a.x << endl << a.y;
     //точки для построения графика

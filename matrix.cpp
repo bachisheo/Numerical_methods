@@ -19,6 +19,7 @@ TriangleMatrix::TriangleMatrix(vect<vect<db>> M) {
     for (int k = 0; k < n; k++) {
         //найти главный (ведущий элемент) в столбце
         int indOfMxm = k;
+        vect<db> a = dat[0];
         for (int p = k; p < n; p++)
             if (abs(dat[p][k]) > abs(dat[indOfMxm][k]))
                 indOfMxm = p;
