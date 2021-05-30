@@ -1,10 +1,10 @@
 //
 // Created by kesa on 29.05.2021.
 //
-#include "vect.h"
 
 #ifndef NUMERICAL_METHODS_NUM_METHODS_H
 #define NUMERICAL_METHODS_NUM_METHODS_H
+#include "vect.h"
 
 //Абстрактный класс интеграла, содержит основные
 //поля и методы
@@ -117,15 +117,15 @@ private:
     vector<vector<db>> getSplineMatrix(vector<db> x, vector<db> y);
 
 public:
+    Spline(){}
     Spline(vector<db> x, vector<db> y) : approxDot(x), funcInDot(y),
                                          SplineMatrix(getSplineMatrix(x, y)) {}
-
     //approximate func for one dot
-    db getFuncApproxInDot(db curx);
+    db getFuncApproxInDot(db curx) const;
 
     //approximate for vector of dots
-    vector<db> getFuncApproxInDots(vector<db> curx) {
-        vector<db> res = vector<db>(curx.size());
+    vect<db> getFuncApproxInDots(vector<db> curx) const{
+        vect<db> res = vector<db>(curx.size());
         for (int i = 0; i < curx.size(); ++i)
             res[i] = getFuncApproxInDot(curx[i]);
         return res;
@@ -134,5 +134,16 @@ public:
 
 std::vector<db> autoGen(int n, db l, db r);
 
+//область, заданная параметрически
+struct ParametricallyDefinedArea {
+    vect<db> x;
+    vect<db> y;
+    vect<db> t;
+    Spline xSpline;
+    Spline ySpline;
+    ParametricallyDefinedArea(vector<db> x, vector<db> y);
+};
+std::ostream &operator<<(std::ostream &out, const ParametricallyDefinedArea &a) ;
 
+vector<Point<db>> createExternalRectangleArea(ParametricallyDefinedArea fig) ;
 #endif //NUMERICAL_METHODS_NUM_METHODS_H

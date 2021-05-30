@@ -4,8 +4,6 @@
 #include <valarray>
 #include "num_methods.h"
 
-template<typename T>
-
 std::vector<db> autoGen(int n, db l, db r) {
     std::vector<db> x = std::vector<db>(n);
     for (int i = 0; i < n; i++)
@@ -184,7 +182,7 @@ vector<vector<db>> Spline::getSplineMatrix(vector<db> x, vector<db> y) {
 /// <param name="x">точки интерполяции</param>
 /// <returns>результат приближения</returns>
 
-db Spline::getFuncApproxInDot(db curx) {
+db Spline::getFuncApproxInDot(db curx) const {
     db Sx;
     int i;
     //определить, какому отрезку принадлежит точка
@@ -197,5 +195,40 @@ db Spline::getFuncApproxInDot(db curx) {
          (SplineMatrix[2][i] / 2) * pow((curx - approxDot[i]), 2) +
          (SplineMatrix[3][i] / 6) * pow((curx - approxDot[i]), 3);
     return Sx;
+}
+
+ParametricallyDefinedArea::ParametricallyDefinedArea(vector<db> x, vector<db>y) :x(x), y(y) {
+    int xs = x.size();
+    assert(xs == y.size());
+    t = vector<db>(xs);
+    for (int i = 0; i < xs; i++)
+        t[i] = i + 1.;
+    xSpline = Spline(t, x);
+    ySpline = Spline(t, y);
+}
+
+std::ostream &operator<<(std::ostream &out, const ParametricallyDefinedArea &a) {
+    //исходные точки
+    out << a.x << endl << a.y;
+    //точки для построения графика
+    vector<db> printDots = autoGen(EPS * a.t[0], a.t[0], a.t[a.t.size() - 1]);
+    out << a.xSpline.getFuncApproxInDots(printDots) << endl;
+    out << a.ySpline.getFuncApproxInDots(printDots) << endl;
+    return out;
+}
+vector<Point<db>> createExternalRectangleArea(ParametricallyDefinedArea fig) {
+    vector<Point<db>> coord = vector<Point<db>>();
+    db delta = 2;
+    db minx, miny, maxx, maxy;
+    minx = fig.x.min() - delta;
+    miny = fig.y.min() - delta;
+    maxx = fig.x.max() + delta;
+    maxy = fig.y.max() + delta;
+    coord.push_back(Point<db>(minx, maxy));
+    coord.push_back(Point<db>(minx, miny));
+    coord.push_back(Point<db>(maxx, miny));
+    coord.push_back(Point<db>(maxx, maxy));
+    coord.push_back(coord[0]);
+    return coord;
 }
 

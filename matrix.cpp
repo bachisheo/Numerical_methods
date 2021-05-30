@@ -3,122 +3,12 @@
 //
 
 #include "matrix.h"
+
 #ifndef SIMPLEXMETHOD_MYMATRIX_H
 #define SIMPLEXMETHOD_MYMATRIX_H
-#define ttt template <typename Type>
 
 
-
-
-///
-/// \param cstr - количество строк
-/// \param ccol количество столбцов
-ttt
-matrix<Type>::matrix(int cstr, int ccol) {
-    dat = vect<vect<Type>>(cstr);
-    for (int i = 0; i < ccol; i++)
-        dat[i] = vect<Type>(ccol);
-};
-
-
-
-/// Конструктор одномерной матрицы (столбца) из вектора
-/// \param M
-ttt
-matrix<Type>::matrix(vect<Type> v){
-    dat = matrix(v.size(), 1);
-    for (int i = 0; i < v.size(); i++)
-        dat[i][0] = v[i];
-}
-
-/// сумма двух матриц
-/// \param otherMatrix
-/// \return
-ttt
-matrix<Type> matrix<Type>::operator+(const matrix<Type> &otherMatrix) const {
-    int n = rowNumb(), m = rowNumb();
-    assert(m == otherMatrix.colNumb() && n == otherMatrix.rowNumb());
-    matrix c = matrix(otherMatrix);
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
-            c.dat[i][j] = otherMatrix.dat[i][j] + dat[i][j];
-    return c;
-}
-
-
-template<> matrix<db> matrix<db>::operator+(db d) const {
-    int n = rowNumb(), m = colNumb();
-    matrix c = matrix(this->dat);
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
-            c.dat[i][j] += d;
-    return c;
-}
-
-template<>
-matrix<db> matrix<db>::operator*(const matrix<db> &b) const {
-    int n = rowNumb(), m = colNumb();
-    matrix<db> c = matrix(0, 0);
-    if (m == b.rowNumb()) {
-        c = matrix(n, b.colNumb());
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < b.colNumb(); j++) {
-                c.dat[i][j] = 0;
-                for (int k = 0; k < m; k++)
-                    c.dat[i][j] += dat[i][k] * b.dat[k][j];
-            }
-    }
-    return c;
-}
-
-template<>
-matrix<db> matrix<db>::operator*(db d) const {
-    matrix c = matrix(rowNumb(), colNumb());
-    for (int i = 0; i < rowNumb(); i++)
-        for (int j = 0; j < colNumb(); j++)
-            c.dat[i][j] = dat[i][j] * d;
-    return c;
-}
-
-///умножение матрицы на вектор
-/// \param v
-/// \return
-template<>
-const vector<db> matrix<db>::operator * (vector<db> v) const {
-    matrix<db> b = matrix(v);
-    return ((*this) * b).getTransMatrix().dat[0];
-}
-
-template<>
-vect<db> &matrix<db>::operator[](const int rowIndex) {
-    return dat[rowIndex];
-}
-
-ttt
-matrix<Type> matrix<Type>::getTransMatrix() const {
-    matrix B = matrix(colNumb(), rowNumb());
-    for (int i = 0; i < rowNumb(); i++)
-        for (int j = 0; j < colNumb(); j++)
-            B.dat[j][i] = dat[i][j];
-    return B;
-}
-
-ttt
-void matrix<Type>::push_back(vect<Type> vec) {
-    dat.push_back(vec);
-}
-
-void TriangleMatrix::swapString(int a, int b) {
-    //зафиксировать изменение в порядке строк
-    swap(orderOfString[a], orderOfString[b]);
-    //поменять местами содержимое строк
-    vect<db> tmp = dat[a];
-    dat[a] = dat[b];
-    dat[b] = tmp;
-    numbOfTurns++;
-}
-
-TriangleMatrix::TriangleMatrix(vect<vect<db>> M)  {
+TriangleMatrix::TriangleMatrix(vect<vect<db>> M) {
     vect<vect<db>> dat = M;
     int n = rowNumb(), m = colNumb();
     //привести матрицу к треугольному виду
@@ -153,26 +43,30 @@ TriangleMatrix::TriangleMatrix(vect<vect<db>> M)  {
             dat[p][k] = C;
         }
     }
-}
+};
 
 //вычислить определитель матрицы
-double TriangleMatrix<db>::getDet() {
+double TriangleMatrix::calcDet() {
+    assert(rowNumb() == colNumb());
     det = 1;
     //вычислить определитель треугольной матрицы
     //как произведение элементов, стоящих на главной диагонали
-    for (int k = 0; k < size; k++) {
-        if (abs(dat[k][k]) < eps) return 0;
+    for (int k = 0; k < rowNumb(); k++) {
+        if (abs(dat[k][k]) < eps)
+            return 0;
         det *= dat[k][k];
     }
     //изменить знак определителя, если строки
     //были переставлены четное число раз
-    if (numbOfTurns % 2) det *= (-1);
+    if (numbOfTurns % 2)
+        det *= (-1);
     return det;
 }
 
 //преобразовать вектор b к трекгольному виду матрицы
 vect<db> TriangleMatrix::transformVector(vect<db> b) {
     vector<db> bk;
+    int size = rowNumb();
     assert(b.size() == size);
     bk = vector<double>(size);
     //переставить строки в том же порядке, что и у треугольной матрицы А
@@ -186,10 +80,18 @@ vect<db> TriangleMatrix::transformVector(vect<db> b) {
     return bk;
 }
 
-
+void TriangleMatrix::swapString(int a, int b) {
+    //зафиксировать изменение в порядке строк
+    swap(orderOfString[a], orderOfString[b]);
+    //поменять местами содержимое строк
+    vect<db> tmp = dat[a];
+    dat[a] = dat[b];
+    dat[b] = tmp;
+    numbOfTurns++;
+}
 
 //обратный ход
-vector<double> revStep(vector<double> b, vector<vector<double>> a) {
+vector<double> revStep(vector<double> b, vect<vect<double>> a) {
     int m = b.size();
     vector<double> x = vector<double>(m);
     //найти каждый х, начиная с i-того
@@ -208,12 +110,12 @@ vector<double> revStep(vector<double> b, vector<vector<double>> a) {
 }
 
 //поиск решения СЛАУ методом Гаусса
-vector<double> GaussMethod(Matrix B, vector<double> b) {
+vector<double> GaussMethod(matrix<db> B, vector<double> b) {
     TriangleMatrix A = TriangleMatrix(B.dat);
     int m = b.size();
     vector<double> x;
     //проверить определитель матрицы
-    if (abs(A.getDet()) < eps) {
+    if (abs(A.calcDet()) < eps) {
         return x;
     }
     //преобразовать правую часть уравнения
@@ -235,13 +137,6 @@ vector<db> residual(matrix<db> A, vect<db> e1, db l1) {
     }
     return res;
 }
-
-
-
-
-
-
-
 
 
 #endif
