@@ -127,8 +127,8 @@ vector<db> ThomasAlgorithm(vector<db> a, vector<db> b, vector<db> c, vector<db> 
 /// в 0, 1, 2 и 4 строке соответственно.
 /// i-тый столбец соответствует многолену на i-том отрезке
 /// </summary>
-/// <param name="x">точки интерполяции</param>
-/// <param name="y">значение функции в них</param>
+/// <param name="pax">точки интерполяции</param>
+/// <param name="pay">значение функции в них</param>
 /// <returns> матрица коэффициентов многочленов</returns>
 vector<vector<db>> Spline::getSplineMatrix(vector<db> x, vector<db> y) {
     assert(x.size() == y.size());
@@ -179,7 +179,7 @@ vector<vector<db>> Spline::getSplineMatrix(vector<db> x, vector<db> y) {
 /// Результат приближения в заданной точке
 /// </summary>
 /// <param name="curx">точка, в которой вычисляется приближение</param>
-/// <param name="x">точки интерполяции</param>
+/// <param name="pax">точки интерполяции</param>
 /// <returns>результат приближения</returns>
 
 db Spline::getFuncApproxInDot(db curx)  {
@@ -216,19 +216,78 @@ std::ostream &operator<<(std::ostream &out,  ParametricallyDefinedArea &a) {
     out << a.ySpline.getFuncApproxInDots(printDots) << endl;
     return out;
 }
-vector<Point<db>> createExternalRectangleArea(ParametricallyDefinedArea fig) {
-    vector<Point<db>> coord = vector<Point<db>>();
+
+vector<point<db>> createExternalRectangleArea(ParametricallyDefinedArea fig) {
+    vector<point<db>> coord = vector<point<db>>();
     db delta = 2;
     db minx, miny, maxx, maxy;
     minx = fig.x.min() - delta;
     miny = fig.y.min() - delta;
     maxx = fig.x.max() + delta;
     maxy = fig.y.max() + delta;
-    coord.push_back(Point<db>(minx, maxy));
-    coord.push_back(Point<db>(minx, miny));
-    coord.push_back(Point<db>(maxx, miny));
-    coord.push_back(Point<db>(maxx, maxy));
+    coord.push_back(point<db>(minx, maxy));
+    coord.push_back(point<db>(minx, miny));
+    coord.push_back(point<db>(maxx, miny));
+    coord.push_back(point<db>(maxx, maxy));
     coord.push_back(coord[0]);
     return coord;
 }
 
+db calcParamAreabySimpson(vector<db> t, vector<db> x, vector<db> y) {
+    vector<db> diffX = Diff::firstDiff(t, x);
+    //число точек должно быть четным
+   // assert(t.size() % 2 == 1);
+    db res = 0;
+    db yPrev = y[0] * diffX[0];
+    db yi = y[1] * diffX[1];
+    for (int i = 1; i < t.size() - 1; i+=2) {
+        db h = t[i + 1] - t[i - 1];
+        db yNext = y[i + 1] * diffX[i + 1];
+        res += (yPrev + 4 * yi + yNext) * h;
+        yPrev = yi;
+        yi = yNext;
+    }
+    res /= 6.;
+    return abs(res);
+}
+
+
+vector<point<db>> MonteCarlo::createRandDots(int numDots) {
+    vector<point<db>> p = vector<point<db>>(numDots);
+    for(int i = 0; i < numDots; i++) {
+        db x = (db) (RAND_MAX - rand()) / (RAND_MAX) * (r_up.x - l_down.x) + l_down.x;
+        db y = (db) (RAND_MAX - rand()) / (RAND_MAX) * (r_up.y - l_down.y) + l_down.y;
+        p[i] = {x, y};
+    }
+    return p;
+}
+
+bool MonteCarlo::dotInArea(point<db> p) {
+    int intersecCount = 0;
+    for (int i = 1; i < areaDots.size(); ++i)
+        if(section::intersect({areaDots[i], areaDots[i-1]},{p, {r_up.x, p.y}}))
+            intersecCount++;
+    return intersecCount % 2;
+}
+
+db MonteCarlo::calcArea(int numDots) {
+    randDots = createRandDots(numDots);
+    for (int i = 0; i < numDots; ++i)
+        if(dotInArea(randDots[i]))
+            dotsIn.push_back(randDots[i]);
+        else
+            dotsOut.push_back(randDots[i]);
+
+    db externalArea = (r_up.x - l_down.x) * (r_up.y - l_down.y);
+    return ((db)dotsIn.size()/numDots) * externalArea;
+}
+
+MonteCarlo::MonteCarlo(vect<db> x, vect<db> y) {
+    assert(x.size() == y.size());
+    areaDots = vector<point<db>>(x.size());
+    for (int i = 0; i < x.size(); ++i)
+        areaDots[i] = {x[i], y[i]};
+    l_down = point<db>(x.min(), y.min());
+    r_up = point<db>(x.max(), y.max());
+
+}

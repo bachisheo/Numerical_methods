@@ -4,14 +4,17 @@
 
 #ifndef NUMERICAL_METHODS_NUM_METHODS_H
 #define NUMERICAL_METHODS_NUM_METHODS_H
-#include "vect.h"
 
+#include "vect.h"
+#include "geometry.h"
+
+///ИНТЕГРИРОВАНИЕ
 //Абстрактный класс интеграла, содержит основные
 //поля и методы
 class AbstractIntegral {
 private:
     ///разделить каждый интервал на два
-    vector<db> divideIntervalsInto2( vector<db> &x);
+    vector<db> divideIntervalsInto2(vector<db> &x);
 
     /// <summary>
     ///автоматический выбор шага интегрирования
@@ -91,13 +94,40 @@ public:
 
 //интеграл, вычисляемый методом Симпсона
 class SimpsonsIntegral : public AbstractIntegral {
-public:
 
     db calcIntegral(vector<db> x);
 
     SimpsonsIntegral(db(*FUNC)(db x)) : AbstractIntegral(FUNC, 5) {}
 };
 
+///ДИФФИРЕНЦИРОВАНИЕ
+struct Diff {
+//вычиление дифференциала 1-го порядка с использованием
+//многочлена Лагранжа 2-й степени
+    static vector<double> firstDiff(vector<double> x, vector<db> y) {
+        vector<double> dy = vector<double>(y.size());
+        for (int i = 1; i < y.size() - 1; i++)
+            dy[i] = (y[i + 1] - y[i - 1]) / (x[i + 1] - x[i - 1]);
+        return dy;
+    }
+
+//вычиление дифференциала 2-го порядка с использованием
+//многочлена Лагранжа 2-й степени
+    static vector<double> secondDiff(vector<double> x, vector<db> y) {
+        assert(x.size() == y.size());
+        vector<double> dy2 = vector<double>(y.size());
+        for (int i = 1; i <= y.size() - 1; i++)
+            dy2[i] = (y[i - 1] - y[i] * 2 + y[i + 1]) / ((x[i] - x[i - 1]) * (x[i + 1] - x[i]));
+        return dy2;
+    }
+
+    static vector<db> thirdDiff(vector<double> x, vector<db> y) {
+        y = firstDiff(y, x);
+        return secondDiff(y, x);
+    }
+};
+
+///РЕШЕНИЕ СЛАУ
 /// Решение СЛАУ  с трехдиагональной матрицей
 ///методом прогонки (методом Томаса)
 /// \param a коэффициенты элементов на диагонали, ниже главной
@@ -107,6 +137,7 @@ public:
 /// \return решение СЛАУ
 vector<db> ThomasAlgorithm(vector<db> a, vector<db> b, vector<db> c, vector<db> d);
 
+///ИНТЕРПОЛИРОВАНИЕ
 struct Spline {
 private:
     //matrix of spline's coefficient
@@ -117,11 +148,13 @@ private:
     vector<vector<db>> getSplineMatrix(vector<db> x, vector<db> y);
 
 public:
-    Spline(){}
+    Spline() {}
+
     Spline(vector<db> x, vector<db> y) : approxDot(x), funcInDot(y),
                                          SplineMatrix(getSplineMatrix(x, y)) {}
+
     //approximate func for one dot
-    db getFuncApproxInDot(db curx) ;
+    db getFuncApproxInDot(db curx);
 
     //approximate for vector of dots
     vect<db> getFuncApproxInDots(vector<db> curx) {
@@ -141,9 +174,34 @@ struct ParametricallyDefinedArea {
     vect<db> t;
     Spline xSpline;
     Spline ySpline;
+
     ParametricallyDefinedArea(vector<db> xCoord, vector<db> yCoord);
 };
-std::ostream &operator<<(std::ostream &out,  ParametricallyDefinedArea &a) ;
 
-vector<Point<db>> createExternalRectangleArea(ParametricallyDefinedArea fig) ;
+std::ostream &operator<<(std::ostream &out, ParametricallyDefinedArea &a);
+
+
+
+db calcParamAreabySimpson(vector<db> t, vector<db> x, vector<db> y);
+
+class MonteCarlo {
+    point<db> l_down = point<db>(0, 0),
+            r_up = point<db>(0, 0);
+    vector<point<db>> randDots;
+    vector<point<db>> createRandDots(int numDots);
+    bool dotInArea(point<db> p);
+public:
+    vect<point<db>> areaDots, dotsIn, dotsOut;
+
+    MonteCarlo(vect<db> x, vect<db> y);
+
+    db calcArea(int numDots);
+
+    void printExternalArea(ostream& out){
+        out << l_down.x << " " << l_down.x << " " << r_up.x << " " << r_up.x << endl;
+        out << r_up.y << " " << l_down.y << " " << l_down.y << " " << r_up.y << endl;
+    }
+};
+
+
 #endif //NUMERICAL_METHODS_NUM_METHODS_H

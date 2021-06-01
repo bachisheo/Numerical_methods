@@ -14,19 +14,19 @@ typedef double db;
 using namespace std;
 
 template<typename T>
-class Point {
+struct point {
 public:
     T x = 0, y = 0;
-
-    Point(T x, T y) : x(x), y(y) {}
+    point(T x, T y);
+    point(){}
 };
 
 template<typename T>
 class vect : public std::vector<T> {
 public:
 
-    vect<T>(int size) : vector<T>(size) {}
-    vect<T>(vector<T> oldVector) : vector<T>(oldVector) {}
+    vect<T>(int size);
+    vect<T>(vector<T> oldVector) : vector<T>(oldVector){};
     T min();
     T max();
     int size() const {return  vector<T>::size();}
@@ -54,7 +54,7 @@ public:
 };
 
 template<typename T>
-std::ostream &operator<<(ostream &fout, vector<Point<T>> points) {
+std::ostream &operator<<(ostream &fout, vector<point<T>> points) {
     for (int i = 0; i < points.size(); i++)
         fout << points[i].x << " ";
     fout << endl;
@@ -129,5 +129,12 @@ std::ostream &operator<<(std::ostream &out, vect<T> v) {
         out << v[i] << " ";
     return out;
 }
+template<typename T>
+point<T>::point(T x, T y) : x(x), y(y) {}
+
+
+template<typename T>
+vect<T>::vect(int size) : vector<T>(size) {}
 
 #endif //NUMERICAL_METHODS_VECT_H
+
