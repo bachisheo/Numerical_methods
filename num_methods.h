@@ -7,7 +7,8 @@
 
 #include "vect.h"
 #include "geometry.h"
-
+#include <valarray>
+#include <functional>
 ///ИНТЕГРИРОВАНИЕ
 //Абстрактный класс интеграла, содержит основные
 //поля и методы
@@ -191,16 +192,13 @@ class MonteCarlo {
     vector<point<db>> createRandDots(int numDots);
     bool dotInArea(point<db> p);
 public:
-    vect<point<db>> areaDots, dotsIn, dotsOut;
+    vector<point<db>> areaDots, dotsIn, dotsOut;
 
-    MonteCarlo(vect<db> x, vect<db> y);
+    MonteCarlo(vector<db> x, vector<db> y);
 
-    db calcArea(int numDots);
+    db calcDoubleIntegral(int numDots, function<db(db, db)> func);
 
-    void printExternalArea(ostream& out){
-        out << l_down.x << " " << l_down.x << " " << r_up.x << " " << r_up.x << endl;
-        out << r_up.y << " " << l_down.y << " " << l_down.y << " " << r_up.y << endl;
-    }
+    void printExternalArea(ostream& out);
 };
 
 

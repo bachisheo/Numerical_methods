@@ -1,7 +1,7 @@
 //
-// Created by kesa on 29.05.2021.
+// Created by Olya on 29.05.2021.
 //
-#include <valarray>
+
 #include "num_methods.h"
 
 std::vector<db> autoGen(int n, db l, db r) {
@@ -11,8 +11,8 @@ std::vector<db> autoGen(int n, db l, db r) {
     return x;
 }
 
-vector<db> AbstractIntegral::divideIntervalsInto2( vector<db> &x) {
-    vector<db> x2 = vector < db > ();
+vector<db> AbstractIntegral::divideIntervalsInto2(vector<db> &x) {
+    vector<db> x2 = vector<db>();
     x2.push_back(x[0]);
     for (int i = 1; i < x.size(); i++) {
         x2.push_back((x[i] + x[i - 1]) / 2);
@@ -23,17 +23,17 @@ vector<db> AbstractIntegral::divideIntervalsInto2( vector<db> &x) {
 
 vector<db> AbstractIntegral::calcPoints(db l, db r, db eps, db A, db B) {
     //исходное разбиение отрезка на точки
-    vector < db > x = {l, r};
+    vector<db> x = {l, r};
     db h = x[1] - x[0];
     //разделить каждый интервал на два,
     //уменьшив шаг вдвое
-    vector < db > x2 = divideIntervalsInto2(x);
+    vector<db> x2 = divideIntervalsInto2(x);
     db intH = calcIntegral(x), intHalfH = calcIntegral(x2);
     db diff = abs(intH - intHalfH) / (pow(2, degreeOnInterval - 1) - 1);
     db mxmDiff = eps * h / (B - A);
     if (diff > mxmDiff) {
-        vector < db > lPoints = calcPoints(l, (l + r) / 2., eps, A, B);
-        vector < db > rPoints = calcPoints((l + r) / 2., r, eps, A, B);
+        vector<db> lPoints = calcPoints(l, (l + r) / 2., eps, A, B);
+        vector<db> rPoints = calcPoints((l + r) / 2., r, eps, A, B);
         lPoints.insert(lPoints.end(), rPoints.begin() + 1, rPoints.end());
         x = lPoints;
     }
@@ -42,7 +42,7 @@ vector<db> AbstractIntegral::calcPoints(db l, db r, db eps, db A, db B) {
 
 ///составить вектор точек, расстояние между которыми задано пользователем
 vector<db> AbstractIntegral::getPointsWithFixedStep(db A, db B, int n) {
-    vector < db > x = vector < db > (n);
+    vector<db> x = vector<db>(n);
     db h = (B - A) / db(n - 1);
     for (int i = 0; i < n - 1; i++)
         x[i] = A + h * i;
@@ -102,9 +102,9 @@ db SimpsonsIntegral::calcIntegral(vector<db> x) {
 
 vector<db> ThomasAlgorithm(vector<db> a, vector<db> b, vector<db> c, vector<db> d) {
     int n = a.size();
-    vector < db > alpha = vector < db > (n + 1);
-    vector < db > beta = vector < db > (n + 1);
-    vector < db > x = vector < db > (n);
+    vector<db> alpha = vector<db>(n + 1);
+    vector<db> beta = vector<db>(n + 1);
+    vector<db> x = vector<db>(n);
     a[0] = c[c.size() - 1] = 0;
     //прямой ход прогонки: найти вспомогательные коэффициенты альфа и бета
     alpha[1] = c[0] / b[0];
@@ -133,23 +133,23 @@ vector<db> ThomasAlgorithm(vector<db> a, vector<db> b, vector<db> c, vector<db> 
 vector<vector<db>> Spline::getSplineMatrix(vector<db> x, vector<db> y) {
     assert(x.size() == y.size());
     int n = x.size();
-    vector < vector < db >> splMatr = vector < vector < db >> (4);
+    vector<vector<db >> splMatr = vector<vector<db >>(4);
     //в точках интерполяции коэффициент а равен
     //значению исходной функции
-    vector < db > a = y;
+    vector<db> a = y;
     // у векторов b и d нулевого элемента нет
     //вектора, соответствующие коэффициентам в сплайне
-    vector < db > b = vector < db > (n);
-    vector < db > c = vector < db > (n);
-    vector < db > d = vector < db > (n);
+    vector<db> b = vector<db>(n);
+    vector<db> c = vector<db>(n);
+    vector<db> d = vector<db>(n);
     //задаем трехдиагональную матрицу 4 векторами
     //вектора, соответствующие коэффициентам в трехдиагональной матрице (задающей
     //коэффициент 'с' сплайна)
-    vector < db > at = vector < db > (n, 0);
-    vector < db > bt = vector < db > (n, 0);
-    vector < db > ct = vector < db > (n, 0);
+    vector<db> at = vector<db>(n, 0);
+    vector<db> bt = vector<db>(n, 0);
+    vector<db> ct = vector<db>(n, 0);
     //вектор свободных членов
-    vector < db > dt = vector < db > (n, 0);
+    vector<db> dt = vector<db>(n, 0);
     //заполнить трехдиагональную матрицу и свободный член коэффициентов при c
     for (int i = 1; i < n - 1; i++) {
         db h1 = x[i] - x[i - 1];
@@ -182,7 +182,7 @@ vector<vector<db>> Spline::getSplineMatrix(vector<db> x, vector<db> y) {
 /// <param name="pax">точки интерполяции</param>
 /// <returns>результат приближения</returns>
 
-db Spline::getFuncApproxInDot(db curx)  {
+db Spline::getFuncApproxInDot(db curx) {
     db Sx;
     int i;
     //определить, какому отрезку принадлежит точка
@@ -197,7 +197,7 @@ db Spline::getFuncApproxInDot(db curx)  {
     return Sx;
 }
 
-ParametricallyDefinedArea::ParametricallyDefinedArea(vector<db> xCoord, vector<db>yCoord):x(xCoord), y(yCoord) {
+ParametricallyDefinedArea::ParametricallyDefinedArea(vector<db> xCoord, vector<db> yCoord) : x(xCoord), y(yCoord) {
     int xs = x.size();
     assert(xs == y.size());
     t = vect<db>(xs);
@@ -207,7 +207,7 @@ ParametricallyDefinedArea::ParametricallyDefinedArea(vector<db> xCoord, vector<d
     ySpline = Spline(t, y);
 }
 
-std::ostream &operator<<(std::ostream &out,  ParametricallyDefinedArea &a) {
+std::ostream &operator<<(std::ostream &out, ParametricallyDefinedArea &a) {
     //исходные точки
     out << a.x << endl << a.y;
     //точки для построения графика
@@ -236,11 +236,11 @@ vector<point<db>> createExternalRectangleArea(ParametricallyDefinedArea fig) {
 db calcParamAreabySimpson(vector<db> t, vector<db> x, vector<db> y) {
     vector<db> diffX = Diff::firstDiff(t, x);
     //число точек должно быть четным
-   // assert(t.size() % 2 == 1);
+    // assert(t.size() % 2 == 1);
     db res = 0;
     db yPrev = y[0] * diffX[0];
     db yi = y[1] * diffX[1];
-    for (int i = 1; i < t.size() - 1; i+=2) {
+    for (int i = 1; i < t.size() - 1; i += 2) {
         db h = t[i + 1] - t[i - 1];
         db yNext = y[i + 1] * diffX[i + 1];
         res += (yPrev + 4 * yi + yNext) * h;
@@ -254,8 +254,8 @@ db calcParamAreabySimpson(vector<db> t, vector<db> x, vector<db> y) {
 
 vector<point<db>> MonteCarlo::createRandDots(int numDots) {
     vector<point<db>> p = vector<point<db>>(numDots);
-    for(int i = 0; i < numDots; i++) {
-        db x = (db) (RAND_MAX - rand()) / (RAND_MAX) * (r_up.x - l_down.x) + l_down.x;
+    for (int i = 0; i < numDots; i++) {
+        db x = (db) (RAND_MAX- rand() ) / (RAND_MAX) * (r_up.x - l_down.x) + l_down.x;
         db y = (db) (RAND_MAX - rand()) / (RAND_MAX) * (r_up.y - l_down.y) + l_down.y;
         p[i] = {x, y};
     }
@@ -263,31 +263,42 @@ vector<point<db>> MonteCarlo::createRandDots(int numDots) {
 }
 
 bool MonteCarlo::dotInArea(point<db> p) {
-    int intersecCount = 0;
+    int intersectCount = 0;
     for (int i = 1; i < areaDots.size(); ++i)
-        if(section::intersect({areaDots[i], areaDots[i-1]},{p, {r_up.x, p.y}}))
-            intersecCount++;
-    return intersecCount % 2;
+        if (section::intersect({areaDots[i], areaDots[i - 1]}, {p, {r_up.x, p.y}}))
+            intersectCount++;
+    if (section::intersect({areaDots[areaDots.size() - 1], areaDots[0]}, {p, {r_up.x, p.y}}))
+        intersectCount++;
+    return intersectCount % 2;
 }
 
-db MonteCarlo::calcArea(int numDots) {
+db MonteCarlo::calcDoubleIntegral(int numDots, function<db(db, db)> func) {
     randDots = createRandDots(numDots);
+    db sum = 0;
     for (int i = 0; i < numDots; ++i)
-        if(dotInArea(randDots[i]))
+        if (dotInArea(randDots[i])) {
             dotsIn.push_back(randDots[i]);
-        else
+            sum += func(randDots[i].x, randDots[i].y);
+        } else
             dotsOut.push_back(randDots[i]);
 
     db externalArea = (r_up.x - l_down.x) * (r_up.y - l_down.y);
-    return ((db)dotsIn.size()/numDots) * externalArea;
+    db doubleIntegral = (db) sum / numDots;
+    return doubleIntegral * externalArea;
 }
 
-MonteCarlo::MonteCarlo(vect<db> x, vect<db> y) {
-    assert(x.size() == y.size());
+MonteCarlo::MonteCarlo(vector<db> X, vector<db> Y) {
+    assert(X.size() == Y.size());
+    vect<db> x = vect<db>(X);
+    vect<db> y = vect<db>(Y);
     areaDots = vector<point<db>>(x.size());
     for (int i = 0; i < x.size(); ++i)
         areaDots[i] = {x[i], y[i]};
     l_down = point<db>(x.min(), y.min());
     r_up = point<db>(x.max(), y.max());
+}
 
+void MonteCarlo::printExternalArea(ostream &out) {
+    out << l_down.x << " " << l_down.x << " " << r_up.x << " " << r_up.x << " " <<l_down.x<< endl;
+    out << r_up.y << " " << l_down.y << " " << l_down.y << " " << r_up.y <<" "<< r_up.y << endl;
 }
