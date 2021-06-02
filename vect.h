@@ -14,29 +14,23 @@ typedef double db;
 using namespace std;
 
 template<typename T>
-struct point {
+class vect  {
+private :
+    vector<T> v;
 public:
-    T x = 0, y = 0;
-    point(T x, T y);
-    point(){}
-};
-
-template<typename T>
-class vect : public std::vector<T> {
-public:
-
+    vect<T>();
     vect<T>(int size);
-    vect<T>(vector<T> oldVector) : vector<T>(oldVector){};
+    vect<T>(vector<T> oldVector);
+
     T min();
     T max();
-    int size() const {return  vector<T>::size();}
-    vect<T> operator*(T mult) {
-        vect<T> prod = vect<T>(size());
-        for (int i = 0; i < size(); i++)
-            prod[i] = this->operator[](i) * mult;
-        return prod;
-    };
+    int size() const;
 
+    vect<T> operator*(T mult);
+    T &operator [] (int index);
+
+
+    operator vector<T>() const { return v; }
 
     //скалярное произведение векторов
     static T scalarProd(vect<T> a, vect<T> b);
@@ -50,20 +44,23 @@ public:
     // норма разности двух векторов
     static db diffNorm(vector<db> a, vector<db> b);
 
-    vect<T>() : vector<T>() {}
 };
-
 template<typename T>
-std::ostream &operator<<(ostream &fout, vector<point<T>> points) {
-    for (int i = 0; i < points.size(); i++)
-        fout << points[i].x << " ";
-    fout << endl;
-    for (int i = 0; i < points.size(); i++)
-        fout << points[i].y << " ";
-    fout << endl;
-    return fout;
+vect<T>::vect() {
+    v = vector<T>();
 }
 
+template<typename T>
+vect<T>::vect(int size) {
+    v = vector<T>(size);
+}
+
+template<typename T>
+vect<T>::vect(vector<T> oldVector) {
+    v = oldVector;
+    int a = 1;
+    a++;
+}
 template<typename T>
 T vect<T>::min() {
     assert(size() > 0);
@@ -82,6 +79,22 @@ T vect<T>::max() {
         if (mxm < this->operator[](i) )
             mxm = this->operator[](i) ;
     return mxm;
+}
+
+template<typename T>
+int vect<T>::size() const {return  v.size();}
+
+template<typename T>
+vect<T> vect<T>::operator*(T mult) {
+    vect<T> prod = vect<T>(size());
+    for (int i = 0; i < size(); i++)
+        prod[i] = v[i] * mult;
+    return prod;
+}
+
+template<typename T>
+T& vect<T>::operator[](int index) {
+    return v[index];
 }
 
 template<typename T>
@@ -122,19 +135,15 @@ db vect<T>::diffNorm(vector<db> a, vector<db> b) {
     return mxm;
 }
 
-
 template<typename T>
 std::ostream &operator<<(std::ostream &out, vect<T> v) {
     for (int i = 0; i < v.size(); ++i)
         out << v[i] << " ";
     return out;
 }
-template<typename T>
-point<T>::point(T x, T y) : x(x), y(y) {}
 
 
-template<typename T>
-vect<T>::vect(int size) : vector<T>(size) {}
+
 
 #endif //NUMERICAL_METHODS_VECT_H
 
