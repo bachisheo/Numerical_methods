@@ -201,5 +201,21 @@ public:
     void printExternalArea(ostream& out);
 };
 
+class CombainMethod{
+private:
+    function<db(db)> y, dy, ddy;
+    db eps;
+    db casatMethod(db x);
+    db hordMethodLeftFix(db a, db b);
+    db hordMethodRightFix(db a, db b);
+public:
+    CombainMethod(function<db(db)> Y, function<db(db)> DY, function<db(db)> DDY);
+
+    db calcOnSegnment(db a, db b);
+
+    vector<db> calcAllRoots(db a, db b, db eps, db step, ostream & out);
+    void PrintRes()
+};
+
 
 #endif //NUMERICAL_METHODS_NUM_METHODS_H

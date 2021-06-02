@@ -286,3 +286,49 @@ void MonteCarlo::printExternalArea(ostream &out) {
     out << l_down.x << " " << l_down.x << " " << r_up.x << " " << r_up.x << " " <<l_down.x<< endl;
     out << r_up.y << " " << l_down.y << " " << l_down.y << " " << r_up.y <<" "<< r_up.y << endl;
 }
+
+CombainMethod::CombainMethod(function<db(db)> Y, function<db(db)> DY, function<db(db)> DDY) {
+    y = Y;
+    dy = DY;
+    ddy = DDY;
+}
+
+db CombainMethod::calcOnSegnment(db a, db b) {
+    assert(y(a) * y(b)<= 0);
+    while(abs(b-a) > eps){
+        if(y(a) * ddy(a) < 0)
+            a = hordMethodRightFix(a,b);
+        else a = casatMethod(a);
+        if(y(b) * ddy(b) < 0)
+            b = hordMethodLeftFix(a, b);
+        else b = casatMethod(b);
+    }
+    return (a+b)/2.;
+}
+
+db CombainMethod::casatMethod(db x) {
+    return x - y(x) / dy(x);
+}
+
+db CombainMethod::hordMethodLeftFix(db a, db b) {
+    return b - y(b) * (b - a) / (y(b) - y(a));
+}
+
+db CombainMethod::hordMethodRightFix(db a, db b) {
+    return a - y(a) * (b - a) / (y(b) - y(a));
+}
+
+vector<db> CombainMethod::calcAllRoots(db a, db b, db eps, db step, ostream& out) {
+    db l = a, r = b;
+    vect<db> res = vect<db>();
+
+    for (int i = 0; l + step < r ; ++i) {
+        if(y(l) * y(l + step) < 0)
+            res.push_back(calcOnSegnment(l, l + step));
+        l+= step;
+    }
+    if(l!= r && y(l) * y(r) < 0)
+        res.push_back(calcOnSegnment(l, l + step));
+    return res;
+}
+
