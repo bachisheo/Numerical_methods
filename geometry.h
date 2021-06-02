@@ -20,6 +20,7 @@ public:
 template<typename T>
 std::ostream &operator<<(ostream &fout, vector<point<T>> points);
 
+void printPoints (ostream& out, vector<point<db>> points);
 struct vect2d {
     db x, y;
     vect2d(point<db> A, point<db> B);
@@ -51,6 +52,15 @@ std::ostream &operator<<(ostream &fout, vector<point<T>> points) {
         fout << points[i].y << " ";
     fout << endl;
     return fout;
+}
+template <typename T>
+void printPoints(ostream &out, vector<point<T>> points) {
+    for (int i = 0; i < points.size(); ++i)
+        out << points[i].x << " ";
+    out << endl;
+    for (int i = 0; i < points.size(); ++i)
+        out << points[i].y << " ";
+    out << endl;
 }
 
 #endif //NUMERICAL_METHODS_GEOMETRY_H

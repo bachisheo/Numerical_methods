@@ -217,22 +217,6 @@ std::ostream &operator<<(std::ostream &out, ParametricallyDefinedArea &a) {
     return out;
 }
 
-vector<point<db>> createExternalRectangleArea(ParametricallyDefinedArea fig) {
-    vector<point<db>> coord = vector<point<db>>();
-    db delta = 2;
-    db minx, miny, maxx, maxy;
-    minx = fig.x.min() - delta;
-    miny = fig.y.min() - delta;
-    maxx = fig.x.max() + delta;
-    maxy = fig.y.max() + delta;
-    coord.push_back(point<db>(minx, maxy));
-    coord.push_back(point<db>(minx, miny));
-    coord.push_back(point<db>(maxx, miny));
-    coord.push_back(point<db>(maxx, maxy));
-    coord.push_back(coord[0]);
-    return coord;
-}
-
 db calcParamAreabySimpson(vector<db> t, vector<db> x, vector<db> y) {
     vector<db> diffX = Diff::firstDiff(t, x);
     //число точек должно быть четным
