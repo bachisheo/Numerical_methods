@@ -204,17 +204,16 @@ public:
 class CombainMethod{
 private:
     function<db(db)> y, dy, ddy;
-    db eps;
+    db cm_eps;
     db casatMethod(db x);
     db hordMethodLeftFix(db a, db b);
     db hordMethodRightFix(db a, db b);
 public:
     CombainMethod(function<db(db)> Y, function<db(db)> DY, function<db(db)> DDY);
 
-    db calcOnSegnment(db a, db b);
+    db calcOnSegnment(db a, db b, int &it);
 
-    vector<db> calcAllRoots(db a, db b, db eps, db step, ostream & out);
-    void PrintRes()
+    vector<db> calcAllRoots(db a, db b, db cm_eps, db step, ostream & out);
 };
 
 

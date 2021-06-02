@@ -2,6 +2,7 @@
 // Created by Olya on 29.05.2021.
 //
 
+#include <iomanip>
 #include "num_methods.h"
 
 std::vector<db> autoGen(int n, db l, db r) {
@@ -293,13 +294,15 @@ CombainMethod::CombainMethod(function<db(db)> Y, function<db(db)> DY, function<d
     ddy = DDY;
 }
 
-db CombainMethod::calcOnSegnment(db a, db b) {
+db CombainMethod::calcOnSegnment(db a, db b, int &it) {
     assert(y(a) * y(b)<= 0);
-    while(abs(b-a) > eps){
+    it = 0;
+    while(abs(b-a) > cm_eps){
+        it++;
         if(y(a) * ddy(a) < 0)
             a = hordMethodRightFix(a,b);
         else a = casatMethod(a);
-        if(y(b) * ddy(b) < 0)
+        if(abs(a - b) > cm_eps && y(b) * ddy(b) < 0)
             b = hordMethodLeftFix(a, b);
         else b = casatMethod(b);
     }
@@ -318,17 +321,34 @@ db CombainMethod::hordMethodRightFix(db a, db b) {
     return a - y(a) * (b - a) / (y(b) - y(a));
 }
 
-vector<db> CombainMethod::calcAllRoots(db a, db b, db eps, db step, ostream& out) {
-    db l = a, r = b;
+vector<db> CombainMethod::calcAllRoots(db a, db b, db CM_EPS, db step, ostream& out) {
+    cm_eps = CM_EPS;
+    db l = a, r = a + step;
     vect<db> res = vect<db>();
+    int it;
+    out << "Interval: [" << a << ", " << b <<"], Eps = "<< cm_eps<< ", step = " << step;
+    out << "\ninterval\t|root \t\t|residual \t\t| iteration\n";
+    for (int i = 0; r < b ; ++i) {
+        out << "[" << l << ", " << r << "]     \t" ;
+        if(y(l) * y(r) <= 0) {
+            db x = calcOnSegnment(l, r, it);
+            res.push_back(x);
+            out <<"x = " << x <<"\t f(x) = "<< y(x) << "\t itCount = " << it << endl;
+        }
+        else
+            out << "-\t\t-\t\t-\n";
 
-    for (int i = 0; l + step < r ; ++i) {
-        if(y(l) * y(l + step) < 0)
-            res.push_back(calcOnSegnment(l, l + step));
-        l+= step;
+        l = r;
+        r += step;
     }
-    if(l!= r && y(l) * y(r) < 0)
-        res.push_back(calcOnSegnment(l, l + step));
+    if(l!= b && y(l) * y(b) < 0) {
+        out << "[" << l << ", " << b << "]\t\t" ;
+        db x =calcOnSegnment(l, b, it);
+        res.push_back(x);
+        out <<"x = " << x <<"\t f(x) = "<< y(x) << "\t itCount = " << it << endl;
+    }
+    else
+        out <<  "[" << l << ", " << b << "]\t\t" << "-\t\t-\t\t-\n";
     return res;
 }
 
