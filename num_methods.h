@@ -5,7 +5,6 @@
 #ifndef NUMERICAL_METHODS_NUM_METHODS_H
 #define NUMERICAL_METHODS_NUM_METHODS_H
 
-#include "vect.h"
 #include "geometry.h"
 #include <valarray>
 #include <functional>
@@ -137,6 +136,38 @@ struct Diff {
 /// \param d столбец свободных членов
 /// \return решение СЛАУ
 vector<db> ThomasAlgorithm(vector<db> a, vector<db> b, vector<db> c, vector<db> d);
+
+//решение СЛАУ итерационным алгоритмом Зейделя
+class ItherMethod {
+matrix<db> A;
+int mxmit = 1e10;
+    //модификация Зейделя
+    vector<db> getXByZeidel(matrix<db> B, vector<db> c, vector<db> x0);
+public:
+//поиск решения СЛАУ
+    vector<double> itherMethod( vector<db> b, vector<db> x0, db eps, long long &it);
+};
+
+//поиск решения СЛАУ методом Гаусса
+vector<double> GaussMethod(TriangleMatrix A, vector<double> b);
+
+///РЕШЕНИЕ СНАУ
+//solution of systems of nonlinear equations by Newton's method
+class NewtonSNAU {
+    vector<function<db(vector<db>)>> func;
+    vector<vector<function<db(vector<db>)>>> JacobiMatr;
+
+    vect<vect<db>> JacMatrix(vector<db> x);
+
+    vector<db> negFuncVect(vect<db> x);
+
+public:
+    NewtonSNAU(vector<function<db(vector<db>)>> FUNC, vector<vector<function<db(vector<db>)>>> Jac);
+
+    //calculate F'(xk)(xk+1 - xk) = -F(xk)
+    //A*delt = b
+    vect<db> calcResults(db eps, vect<db> xk, int &it);
+};
 
 ///ИНТЕРПОЛИРОВАНИЕ
 struct Spline {

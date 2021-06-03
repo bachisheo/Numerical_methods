@@ -4,7 +4,6 @@
 
 #include <iomanip>
 #include "num_methods.h"
-
 std::vector<db> autoGen(int n, db l, db r) {
     std::vector<db> x = std::vector<db>(n);
     for (int i = 0; i < n; i++)
@@ -236,6 +235,31 @@ db calcParamAreabySimpson(vector<db> t, vector<db> x, vector<db> y) {
     return abs(res);
 }
 
+vector<double> GaussMethod(TriangleMatrix A, vector<double> b) {
+    int m = b.size();
+    vector<double> x;
+    //проверить определитель матрицы
+    // assert (abs(A.calcDet()) > 1e-8);
+    if (abs(A.calcDet()) < 1e-8)
+        return vector<db>();
+    //преобразовать правую часть уравнения
+    vector<double> bk = A.transformVector(b);
+    //обратный ход метода Гаусса
+    x = vector<double>(m);
+    //найти каждый х, начиная с k-того
+    for (int k = m - 1; k >= 0; k--) {
+        //посчитать сумму произведений известных х
+        //на соответствующие элементы матрицы А
+        double sum = 0;
+        for (int l = k + 1; l < m && l > 0; l++)
+            sum += x[l] * A[k][l];
+        //вычислить текущий х
+        x[k] = bk[k] - sum;
+        x[k] = x[k] / A[k][k];
+    }
+    return x;
+}
+
 
 vector<point<db>> MonteCarlo::createRandDots(int numDots) {
     vector<point<db>> p = vector<point<db>>(numDots);
@@ -352,3 +376,82 @@ vector<db> CombainMethod::calcAllRoots(db a, db b, db CM_EPS, db step, ostream& 
     return res;
 }
 
+vector<double>
+ItherMethod::itherMethod(vector<db> b, vector<db> x0, db eps,  long long int &it) {
+
+    //найдем матрицу В и вектор с, чтобы не пересчитывать их каждую иттерацию
+    matrix<db> B = matrix<db>(A.rowNumb(), A.colNumb());
+    vector<db> c = vector<db>(A.rowNumb());
+    for (int i = 0; i < A.rowNumb(); i++)
+        for (int j = 0; j < A.colNumb(); j++)
+            if (i == j) {
+                B[i][j] = 0;
+                c[i] = b[i] / A[i][i];
+            } else B.dat[i][j] = (-1) * A.dat[i][j] / A.dat[i][i];
+    vect<db> x = x0;
+    vect<db> x1 = vector<db>(A.rowNumb());
+    x1 = getXByZeidel(B, c, x0);
+    //xk = Bx(k-1) + c
+    //изменить вектор согласно выбранному методу
+    for (it = 0; vect<db>::getNorm(x1) > eps && it < mxmit; it++) {
+        x = x1;
+        x1 = getXByZeidel(B, c, x1);
+        //проверка на выход числа за пределы double
+        for (int i = 0; i < x1.size(); i++)
+            assert (x1[i] == x1[i]);
+    }
+    return x1;
+}
+
+vector<db> ItherMethod::getXByZeidel(matrix<db> B, vector<db> c, vector<db> x0) {
+    vector<db> x = vector<db>(x0.size());
+    for (int i = 0; i < B.rowNumb(); i++)
+    {
+        x[i] = c[i];
+        //вычислить сумму, зависящую от элементов вектора уже вычисленных
+        //на данной итерации
+        for (int j = 0; j < i; j++)
+            x[i] += B.dat[i][j] * x[j];
+        //вычислить сумму, зависящую от элементов
+        //исходного вектора
+        for (int j = i + 1; j < B.rowNumb(); j++)
+            x[i] += B.dat[i][j] * x0[j];
+    }
+    return x;
+}
+
+vect<vect<db>> NewtonSNAU::JacMatrix(vector<db> x) {
+    vect<vect<db>> a = vector<vect<db>>(JacobiMatr.size(), vect<db>(x.size()));
+    for (int i = 0; i < JacobiMatr.size(); ++i)
+        for (int j = 0; j < x.size(); ++j)
+            a[i][j] = JacobiMatr[i][j](x);
+    return a;
+}
+
+vector<db> NewtonSNAU::negFuncVect(vect<db> x) {
+    vect<db> res = vect<db>(x.size());
+    for (int i = 0; i < func.size(); ++i)
+        res[i] = func[i](x) * -1.;
+    return res;
+}
+
+NewtonSNAU::NewtonSNAU(vector<function<db(vector<db>)>> FUNC, vector<vector<function<db(vector<db>)>>> Jac) {
+    func = FUNC;
+    JacobiMatr = Jac;
+}
+
+vect<db> NewtonSNAU::calcResults(db eps, vect<db> xk, int &it) {
+    it = 0;
+    vect<db> delta;
+    do {
+        it++;
+        vect<vect<db>> a = JacMatrix(xk);
+        TriangleMatrix A = TriangleMatrix(a);
+        vector<db> b = negFuncVect(xk);
+        delta = GaussMethod(A, b);
+        if (delta.size() == 0)
+            return delta;
+        xk = xk + delta;
+    } while (delta.absMax() > eps);
+    return xk;
+}
